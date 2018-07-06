@@ -15,10 +15,11 @@ class TestSurvivor(TestCase):
 class TestItem(TestCase):
   
   def setUp(self):
-        self.item = mommy.make(Item, name='Food')
+    self.item = mommy.make(Item, name='Food')
       
   def test_genre_creation(self):
-        self.assertTrue(isinstance(self.item, item))
-        self.assertEquals(self.item.__str__(), self.genre.item)
+    self.assertTrue(isinstance(self.item, item))
+    self.assertEquals(self.item.__str__(), self.genre.item)
+
         
         
