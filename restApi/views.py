@@ -9,6 +9,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
 from restApi.models import Survivor
 from restApi.serializers import SurvivorSerializer
+from restApi.serializers import Survivor_LocationSerializer
 
 @csrf_exempt
 def survivor_create(request):
@@ -22,7 +23,7 @@ def survivor_create(request):
 
     elif request.method == 'POST':
         data = JSONParser().parse(request)
-        serializer = Survivor_Serializer(data=data)
+        serializer = SurvivorSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return JsonResponse(serializer.data, status=201)
@@ -42,6 +43,8 @@ def survivor_update(request, pk):
         data = JSONParser().parse(request)
         serializer = Survivor_LocationSerializer(survivor, data=data)
         if serializer.is_valid():
-            survivor.save()
-            return JsonResponse(survivor.data)
+            print()
+            serializer.save()
+            s_serializer = SurvivorSerializer(survivor)
+            return JsonResponse(s_serializer.data)
         return JsonResponse(serializer.errors, status=400)
