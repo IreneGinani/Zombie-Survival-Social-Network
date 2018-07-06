@@ -11,7 +11,7 @@ class Survivor(models.Model):
     longitude = models.FloatField()
     latitude = models.FloatField()
     is_infected = models.BooleanField()
-    count_reports = models.IntegerField()
+    count_reports = models.IntegerField(default = 0)
     
     class Meta:
         verbose_name = u'Survivor'
@@ -32,12 +32,20 @@ class Item(models.Model):
         return self.name
 
 class Inventory(models.Model):
-    
+
     survivor = models.ForeignKey(Survivor, verbose_name='Survivor')
 
     class Meta:
         verbose_name = u'Inventory'
         verbose_name_plural = u'Inventories'
-        
-    def __str__(self):
-        return self.name
+
+class Inventory_Items:
+
+    inventories = models.ManyToMany(Inventory, verbose_name='Inventory')
+    items = models.ManyToMany(Item, verbose_name = 'Item')
+
+    class Meta:
+        verbose_name = u'Item'
+        verbose_name_plural = u'Items'
+
+
