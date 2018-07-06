@@ -30,3 +30,14 @@ class Item(models.Model):
         
     def __str__(self):
         return self.name
+
+class Inventory(models.Model):
+    
+    survivor = models.ForeignKey(Survivor, verbose_name='Survivor')
+
+    class Meta:
+        verbose_name = u'Inventory'
+        verbose_name_plural = u'Inventories'
+        
+    def __str__(self):
+        return self.name
