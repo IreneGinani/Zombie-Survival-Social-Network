@@ -41,8 +41,8 @@ class Inventory(models.Model):
 
 class Inventory_Items:
 
-    inventories = models.ManyToMany(Inventory, verbose_name='Inventory')
-    items = models.ManyToMany(Item, verbose_name = 'Item')
+    inventories = models.ManyToManyField(Inventory, verbose_name='Inventory')
+    items = models.ManyToManyField(Item, verbose_name = 'Item')
 
     class Meta:
         verbose_name = u'Item'
