@@ -20,4 +20,13 @@ class Survivor(models.Model):
     def __str__(self):
         return self.name
   
-  
+class Item(models.Model):
+    name = models.CharField(max_length=100)
+    point = models.IntegerField()
+
+    class Meta:
+        verbose_name = u'Item'
+        verbose_name_plural = u'Items'
+        
+    def __str__(self):
+        return self.name
