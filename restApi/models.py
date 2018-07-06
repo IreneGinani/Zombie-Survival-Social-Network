@@ -10,6 +10,8 @@ class Survivor(models.Model):
     gender = models.CharField(max_length=100)
     longitude = models.FloatField()
     latitude = models.FloatField()
+    is_infected = models.BooleanField()
+    count_reports = models.IntegerField()
     
     class Meta:
         verbose_name = u'Survivor'
