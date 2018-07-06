@@ -1,0 +1,34 @@
+[
+    {
+      "model": "restApi.Item",
+      "pk": 1,
+      "fields": {
+        "name": "food",
+        "point": 3
+      }
+    },
+    {
+        "model": "restApi.Item",
+        "pk": 1,
+        "fields": {
+          "name": "water",
+          "point": 4
+        }
+    },
+    {
+        "model": "restApi.Item",
+        "pk": 1,
+        "fields": {
+          "name": "medication",
+          "point": 2
+        }
+    },
+    {
+        "model": "restApi.Item",
+        "pk": 1,
+        "fields": {
+          "name": "ammunition",
+          "point": 1
+        }
+      }
+  ]
