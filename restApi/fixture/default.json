@@ -9,7 +9,7 @@
     },
     {
         "model": "restApi.Item",
-        "pk": 1,
+        "pk": 2,
         "fields": {
           "name": "water",
           "point": 4
@@ -17,7 +17,7 @@
     },
     {
         "model": "restApi.Item",
-        "pk": 1,
+        "pk": 3,
         "fields": {
           "name": "medication",
           "point": 2
@@ -25,7 +25,7 @@
     },
     {
         "model": "restApi.Item",
-        "pk": 1,
+        "pk": 4,
         "fields": {
           "name": "ammunition",
           "point": 1
