@@ -43,7 +43,15 @@ def survivor_create(request):
                              'is_infected': is_infected
                 }
         }
-        dic_inventory = { "items": 1, "inventories": 
+        
+        survivor_serializer = SurvivorSerializer(data=data)
+        inventory_serializer = InventorySerializer(data=dic_survivor)
+               
+        try:
+            inventory_items = data['inventory']['inventory_items']
+            if inventory_serializer.is_valid():
+                for element in inventory_items:
+                    dic_inventory = { "items": int(element['id']), "inventories": 
                                         [{'survivor': {
                                                        'name': name,
                                                        'age' : int(age),
@@ -54,18 +62,11 @@ def survivor_create(request):
                                                     }
                                         },
                                         ]
-        }
-        survivor_serializer = SurvivorSerializer(data=data)
-        inventory_serializer = InventorySerializer(data=dic_survivor)
-        inventory_items_serializer = Inventory_ItemsSerializer(data=dic_inventory)
-               
-        try:
-            inventory_items = data['inventory']
-            if inventory_serializer.is_valid():
-                #for element in inventory_items:
-                if inventory_items_serializer.is_valid():
+                    }
+                    inventory_items_serializer = Inventory_ItemsSerializer(data=dic_inventory)
+                    if inventory_items_serializer.is_valid():
                     
-                    inventory_items_serializer.save()
+                        inventory_items_serializer.save()
                     
                 return JsonResponse(inventory_items_serializer.errors, status=400)
             if survivor_serializer.is_valid():
