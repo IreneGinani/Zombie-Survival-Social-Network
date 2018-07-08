@@ -42,6 +42,7 @@ class Inventory(models.Model):
 
 class Inventory_Items(models.Model):
 
+    survivor_id = models.IntegerField(default=0)
     inventories = models.ManyToManyField(Inventory, verbose_name='Inventories')
     items = models.IntegerField()
 

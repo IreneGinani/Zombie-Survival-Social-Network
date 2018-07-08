@@ -7,7 +7,7 @@ from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
-from restApi.models import Survivor
+from restApi.models import Survivor, Inventory_Items
 from restApi.serializers import SurvivorSerializer, InventorySerializer, Inventory_ItemsSerializer
 from restApi.serializers import Survivor_LocationSerializer
 
@@ -48,10 +48,13 @@ def survivor_create(request):
         inventory_serializer = InventorySerializer(data=dic_survivor)
                
         try:
+            if survivor_serializer.is_valid():
+                s = survivor_serializer.save()
             inventory_items = data['inventory']['inventory_items']
             if inventory_serializer.is_valid():
                 for element in inventory_items:
-                    dic_inventory = { "items": int(element['id']), "inventories": 
+                   
+                    dic_inventory = { "survivor_id": s.id, "items": int(element['id']), "inventories": 
                                         [{'survivor': {
                                                        'name': name,
                                                        'age' : int(age),
@@ -63,16 +66,12 @@ def survivor_create(request):
                                         },
                                         ]
                     }
+                    print(dic_inventory)
                     inventory_items_serializer = Inventory_ItemsSerializer(data=dic_inventory)
                     if inventory_items_serializer.is_valid():
-                    
                         inventory_items_serializer.save()
-                    
-                return JsonResponse(inventory_items_serializer.errors, status=400)
-            if survivor_serializer.is_valid():
-                survivor_serializer.save()
-                return JsonResponse(survivor_serializer.data, status=201)
-            return JsonResponse(survivor_serializer.errors, status=400)
+                return JsonResponse(inventory_items_serializer.data, status=200)
+                inventory_serializer.save()
         except KeyError:
             print ("Inventory is Requerid")
 
@@ -94,3 +93,9 @@ def survivor_update(request, pk):
             s_serializer = SurvivorSerializer(survivor)
             return JsonResponse(s_serializer.data)
         return JsonResponse(serializer.errors, status=400)
+
+def inventories_items(request):
+    if request.method == 'GET':
+        inventories_items = Inventory_Items.objects.all()
+        serializer = Inventory_ItemsSerializer(inventories_items, many=True)
+        return JsonResponse(serializer.data, safe=False)
