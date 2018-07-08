@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 
 from django.shortcuts import render
 
+import json
+
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.renderers import JSONRenderer
@@ -165,13 +167,13 @@ def trade_items(request, pk, slug, month, username):
             survivor_1 = Survivor.objects.get(pk=pk_1)
             survivor_2 = Survivor.objects.get(pk=pk_2)
         except Survivor.DoesNotExist:
-            return HttpResponse(status=404)
+            return HttpResponse(json.dumps({"error":"Survivor don't exists"}), content_type="application/json", status=404)
 
         try:
             inventory_1 = Inventory_Items.objects.filter(survivor_id=pk_1)
             inventory_2 = Inventory_Items.objects.filter(survivor_id=pk_2)
         except Inventory_Items.DoesNotExist:
-            return HttpResponse(status=404)
+            return HttpResponse(json.dumps({"error":"Inventory don't exists"}), content_type="application/json", status=404)
         
 
         types_items1 = items_1.split("-")
@@ -180,17 +182,70 @@ def trade_items(request, pk, slug, month, username):
         for i in xrange(0, len(types_items1)):
             if(i%2 == 0):
                 item = Item.objects.get(name=types_items1[i+1])
-                dic_items1[int(types_items1[i])*item.point] = types_items1[i+1]
+                dic_items1[int(types_items1[i])] = types_items1[i+1]
+                try:
+                    items1 = Item.objects.filter(name=types_items1[i+1])
+                    if (items1.count() != int(types_items1[i])):
+                        return HttpResponse(json.dumps({"error":"Amount don't match"}), content_type="application/json", status=400)
+                except Item.DoesNotExist:
+                    return HttpResponse(json.dumps({"error":"Item don't exists"}), content_type="application/json", status=404)
+
                 soma_total1 += int(types_items1[i])*item.point
 
         for i in xrange(0, len(types_items2)):
             if(i%2 == 0):
-                dic_items2[int(types_items2[i])*item.point] = types_items2[i+1]
+                dic_items2[int(types_items2[i])] = types_items2[i+1]
+                try:
+                    items2 = Item.objects.filter(name=types_items2[i+1])
+                    if (items2.count() != int(types_items2[i])):
+                        return HttpResponse(json.dumps({"error":"Amount don't match"}), content_type="application/json", status=400)
+                except Item.DoesNotExist:
+                    return HttpResponse(json.dumps({"error":"Item don't exists"}), content_type="application/json", status=404)
                 soma_total2 += int(types_items2[i])*item.point
         
         if (soma_total1 != soma_total2):
-            print("Points don't match")
-            return HttpResponse(status=400)
+            return HttpResponse(json.dumps({"error":"Points don't match"}), content_type="application/json", status=400)
+
         else:
-            pass
+            for key in dic_items1:
+                dic_inventory = { "survivor_id": pk_2, "items": dic_items1[key], "inventories": 
+                                        [{'survivor': {
+                                                       'name': "",
+                                                       'age' : 0,
+                                                       'gender': "",
+                                                       'longitude': 0,
+                                                       'latitude': 0,
+                                                       'is_infected': False,
+                                                       'count_reports': 0
+                                                    }
+                                        },
+                                        ]
+                    }
+                inventory_items_serializer = Inventory_ItemsSerializer(data=dic_inventory)
+                if inventory_items_serializer.is_valid():
+                    inventory_items_serializer.save()
+                Inventory_Items.objects.filter(name=dic_items1[key]).first().delete()
+                
+            for key in dic_items2:
+                dic_inventory = { "survivor_id": pk_1, "items": dic_items2[key], "inventories": 
+                                        [{'survivor': {
+                                                       'name': "",
+                                                       'age' : 0,
+                                                       'gender': "",
+                                                       'longitude': 0,
+                                                       'latitude': 0,
+                                                       'is_infected': False,
+                                                       'count_reports': 0
+                                                    }
+                                        },
+                                        ]
+                    }
+                inventory_items_serializer = Inventory_ItemsSerializer(data=dic_inventory)
+                if inventory_items_serializer.is_valid():
+                    inventory_items_serializer.save()
+                Inventory_Items.objects.filter(name=dic_items2[key]).first().delete()
+            return HttpResponse(json.dumps({"Success":"Exchange made successfully"}), content_type="application/json", status=200)
+
+    return HttpResponse(json.dumps({"Success":"Exchange made successfully"}), content_type="application/json", status=200)
+
     
