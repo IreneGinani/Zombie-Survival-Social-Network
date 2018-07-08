@@ -63,7 +63,8 @@ def survivor_create(request):
                     inventory_items_serializer.save()
             return JsonResponse(survivor_serializer.data, status=200)
         except KeyError:
-            print ("Inventory is Requerid")
+            return HttpResponse(json.dumps({"error":"Inventory is Requerid"}), content_type="application/json", status=404)
+
 
 @csrf_exempt
 def survivor_update(request, pk):
@@ -73,7 +74,7 @@ def survivor_update(request, pk):
     try:
         survivor = Survivor.objects.get(pk=pk)
     except Survivor.DoesNotExist:
-        return HttpResponse(status=404)
+        return HttpResponse(json.dumps({"error":"Survivor does not exists"}), content_type="application/json", status=404)
 
     if request.method == 'PUT':
         data = JSONParser().parse(request)
@@ -96,7 +97,7 @@ def report_infection(request, pk):
     try:
         survivor = Survivor.objects.get(pk=pk)
     except Survivor.DoesNotExist:
-        return HttpResponse(status=404)
+        return HttpResponse(json.dumps({"error":"Survivor does not exists"}), content_type="application/json", status=404)
     count_reports = survivor.count_reports + 1
 
     if count_reports == 3:
