@@ -11,7 +11,7 @@ class Survivor(models.Model):
     longitude = models.FloatField()
     latitude = models.FloatField()
     is_infected = models.BooleanField()
-    count_reports = models.IntegerField(default = 0)
+    count_reports = models.IntegerField(default=0)
 
     
     class Meta:
@@ -42,7 +42,7 @@ class Inventory(models.Model):
 
 class Inventory_Items(models.Model):
 
-    survivor_id = models.IntegerField(default=0)
+    survivor_id = models.IntegerField(default=0, null=True, blank=True)
     inventories = models.ManyToManyField(Inventory, verbose_name='Inventories')
     items = models.IntegerField()
 

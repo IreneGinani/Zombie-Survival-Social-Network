@@ -5,7 +5,7 @@ from .models import Survivor, Inventory, Inventory_Items, Item
 class SurvivorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Survivor
-        fields = ('id','name', 'age', 'gender', 'longitude', 'latitude', 'is_infected')
+        fields = ('id','name', 'age', 'gender', 'longitude', 'latitude', 'is_infected','count_reports')
 
 class Survivor_LocationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -16,7 +16,7 @@ class InventorySerializer(serializers.ModelSerializer):
     """
     A inventory serializer to return the inventory details
     """
-    survivor = SurvivorSerializer(required=True)
+    survivor = SurvivorSerializer(read_only=True)
 
     class Meta:
         model = Inventory

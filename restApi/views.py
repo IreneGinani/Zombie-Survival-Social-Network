@@ -29,18 +29,19 @@ def survivor_create(request):
         latitude = data['latitude']
         longitude = data['longitude']
         is_infected = data['is_infected']
+        count_reports = 0
         if (is_infected == False):
             is_infected = False
         else:
             is_infected = True
-        survivor_s = Survivor(name, age, gender, longitude, latitude,is_infected)
         dic_survivor = { "survivor": {
                              'name': name,
                              'age' : int(age),
                              'gender': gender,
                              'longitude': float(longitude),
                              'latitude': float(latitude),
-                             'is_infected': is_infected
+                             'is_infected': is_infectexd,
+                             'count_reports': count_reports
                 }
         }
         
@@ -61,17 +62,17 @@ def survivor_create(request):
                                                        'gender': gender,
                                                        'longitude': float(longitude),
                                                        'latitude': float(latitude),
-                                                       'is_infected': is_infected
+                                                       'is_infected': is_infected,
+                                                       'count_reports': count_reports
                                                     }
                                         },
                                         ]
                     }
-                    print(dic_inventory)
                     inventory_items_serializer = Inventory_ItemsSerializer(data=dic_inventory)
                     if inventory_items_serializer.is_valid():
                         inventory_items_serializer.save()
-                return JsonResponse(inventory_items_serializer.data, status=200)
                 inventory_serializer.save()
+            return JsonResponse(survivor.data, status=200)
         except KeyError:
             print ("Inventory is Requerid")
 
@@ -99,3 +100,44 @@ def inventories_items(request):
         inventories_items = Inventory_Items.objects.all()
         serializer = Inventory_ItemsSerializer(inventories_items, many=True)
         return JsonResponse(serializer.data, safe=False)
+
+@csrf_exempt
+def report_infection(request, pk):
+   
+    try:
+        survivor = Survivor.objects.get(pk=pk)
+        print(survivor.id)
+    except Survivor.DoesNotExist:
+        return HttpResponse(status=404)
+    count_reports = survivor.count_reports + 1
+
+    if count_reports == 3:
+        data =  {
+        "name": survivor.name,
+        "age": survivor.age,
+        "gender": survivor.gender,
+        "longitude": survivor.longitude,
+        "latitude": survivor.latitude,
+        "is_infected": True,
+        "count_reports": count_reports
+        }
+    else:
+        data =  {
+        "name": survivor.name,
+        "age": survivor.age,
+        "gender": survivor.gender,
+        "longitude": survivor.longitude,
+        "latitude": survivor.latitude,
+        "is_infected": survivor.is_infected,
+        "count_reports": count_reports
+    }
+
+    
+    if request.method == 'PUT':
+        survivor_serializer = SurvivorSerializer(survivor,data=data)
+        if survivor_serializer.is_valid():
+            survivor_serializer.save()
+            s_serializer = SurvivorSerializer(survivor)
+            return JsonResponse(s_serializer.data, status=200)
+        return JsonResponse(s_serializer.errors, status=400)
+    
