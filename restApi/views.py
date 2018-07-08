@@ -150,3 +150,31 @@ def report_infection(request, pk):
             return JsonResponse(s_serializer.data, status=200)
         return JsonResponse(s_serializer.errors, status=400)
 
+@csrf_exempt
+def trade_items(request, pk, slug, month, username):
+
+    pk_1 = pk
+    items_1 = slug
+    pk_2 = month
+    items_2 = username
+
+    try:
+        survivor_1 = Survivor.objects.get(pk=pk_1)
+        survivor_2 = Survivor.objects.get(pk=pk_2)
+    except Survivor.DoesNotExist:
+        return HttpResponse(status=404)
+
+    try:
+        inventory_1 = Inventory_Items.objects.filter(survivor_id=pk_1)
+        inventory_2 = Inventory_Items.objects.filter(survivor_id=pk_2)
+    except Inventory_Items.DoesNotExist:
+        return HttpResponse(status=404)
+    
+
+    bla = items_2.split("-")
+    print(Item.objects.filter(name=bla[1]))
+    
+
+    if request.method == 'PUT':
+        pass
+    return HttpResponse(status=200)
