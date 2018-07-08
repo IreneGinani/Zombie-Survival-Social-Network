@@ -32,3 +32,6 @@ class Inventory_ItemsSerializer(serializers.ModelSerializer):
         model = Inventory_Items
         fields = ('inventories', 'items', 'survivor_id')
 
+class Item_Serializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ('name', 'point')

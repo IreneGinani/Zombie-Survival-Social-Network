@@ -7,7 +7,7 @@ from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
-from restApi.models import Survivor, Inventory_Items
+from restApi.models import Survivor, Inventory_Items, Item
 from restApi.serializers import SurvivorSerializer, InventorySerializer, Inventory_ItemsSerializer
 from restApi.serializers import Survivor_LocationSerializer
 
@@ -40,7 +40,7 @@ def survivor_create(request):
                              'gender': gender,
                              'longitude': float(longitude),
                              'latitude': float(latitude),
-                             'is_infected': is_infectexd,
+                             'is_infected': is_infected,
                              'count_reports': count_reports
                 }
         }
@@ -106,7 +106,6 @@ def report_infection(request, pk):
    
     try:
         survivor = Survivor.objects.get(pk=pk)
-        print(survivor.id)
     except Survivor.DoesNotExist:
         return HttpResponse(status=404)
     count_reports = survivor.count_reports + 1
@@ -121,6 +120,15 @@ def report_infection(request, pk):
         "is_infected": True,
         "count_reports": count_reports
         }
+        # try:
+        #     lost_items += Inventory_Items.objects.filter(survivor_id=survivor.id).count
+        #     Inventory_Items.objects.filter(survivor_id=survivor.id).delete()
+        # except Inventory_Items.DoesNotExist:
+        #     print("The survivor don't have items in your inventory")
+   
+        # Inventory_Items.objects.filter(survivor_id=survivor.id)
+        # print(len(Inventory_Items))
+
     else:
         data =  {
         "name": survivor.name,
@@ -133,6 +141,7 @@ def report_infection(request, pk):
     }
 
     
+    
     if request.method == 'PUT':
         survivor_serializer = SurvivorSerializer(survivor,data=data)
         if survivor_serializer.is_valid():
@@ -140,4 +149,4 @@ def report_infection(request, pk):
             s_serializer = SurvivorSerializer(survivor)
             return JsonResponse(s_serializer.data, status=200)
         return JsonResponse(s_serializer.errors, status=400)
-    
+
