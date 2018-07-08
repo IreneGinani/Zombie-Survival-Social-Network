@@ -41,6 +41,7 @@ def survivor_create(request):
                
         try:
             if survivor_serializer.is_valid():
+                
                 s = survivor_serializer.save()
             inventory_items = data['inventory']['inventory_items']
             for element in inventory_items:
