@@ -10,7 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
 from restApi.models import Survivor, Inventory_Items, Item
-from restApi.serializers import SurvivorSerializer, InventorySerializer, Inventory_ItemsSerializer
+from restApi.serializers import SurvivorSerializer, Inventory_ItemsSerializer
 from restApi.serializers import Survivor_LocationSerializer, ItemSerializer
 
 @csrf_exempt
@@ -36,28 +36,16 @@ def survivor_create(request):
             is_infected = False
         else:
             is_infected = True
-        dic_survivor = { "survivor": {
-                             'name': name,
-                             'age' : int(age),
-                             'gender': gender,
-                             'longitude': float(longitude),
-                             'latitude': float(latitude),
-                             'is_infected': is_infected,
-                             'count_reports': count_reports
-                }
-        }
-        
+
         survivor_serializer = SurvivorSerializer(data=data)
-        inventory_serializer = InventorySerializer(data=dic_survivor)
                
         try:
             if survivor_serializer.is_valid():
                 s = survivor_serializer.save()
             inventory_items = data['inventory']['inventory_items']
-            if inventory_serializer.is_valid():
-                for element in inventory_items:
+            for element in inventory_items:
                    
-                    dic_inventory = { "survivor_id": s.id, "items": int(element['id']), "inventories": 
+                dic_inventory = { "survivor_id": s.id, "items": int(element['id']), "inventories": 
                                         [{'survivor': {
                                                        'name': name,
                                                        'age' : int(age),
@@ -70,11 +58,10 @@ def survivor_create(request):
                                         },
                                         ]
                     }
-                    inventory_items_serializer = Inventory_ItemsSerializer(data=dic_inventory)
-                    if inventory_items_serializer.is_valid():
-                        inventory_items_serializer.save()
-                inventory_serializer.save()
-            return JsonResponse(survivor.data, status=200)
+                inventory_items_serializer = Inventory_ItemsSerializer(data=dic_inventory)
+                if inventory_items_serializer.is_valid():
+                    inventory_items_serializer.save()
+            return JsonResponse(survivor_serializer.data, status=200)
         except KeyError:
             print ("Inventory is Requerid")
 
@@ -122,15 +109,6 @@ def report_infection(request, pk):
         "is_infected": True,
         "count_reports": count_reports
         }
-        # try:
-        #     lost_items += Inventory_Items.objects.filter(survivor_id=survivor.id).count
-        #     Inventory_Items.objects.filter(survivor_id=survivor.id).delete()
-        # except Inventory_Items.DoesNotExist:
-        #     print("The survivor don't have items in your inventory")
-   
-        # Inventory_Items.objects.filter(survivor_id=survivor.id)
-        # print(len(Inventory_Items))
-
     else:
         data =  {
         "name": survivor.name,
