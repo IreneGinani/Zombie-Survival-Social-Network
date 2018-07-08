@@ -9,7 +9,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
 from restApi.models import Survivor, Inventory_Items, Item
 from restApi.serializers import SurvivorSerializer, InventorySerializer, Inventory_ItemsSerializer
-from restApi.serializers import Survivor_LocationSerializer
+from restApi.serializers import Survivor_LocationSerializer, ItemSerializer
 
 @csrf_exempt
 def survivor_create(request):
@@ -140,8 +140,6 @@ def report_infection(request, pk):
         "count_reports": count_reports
     }
 
-    
-    
     if request.method == 'PUT':
         survivor_serializer = SurvivorSerializer(survivor,data=data)
         if survivor_serializer.is_valid():
@@ -157,24 +155,42 @@ def trade_items(request, pk, slug, month, username):
     items_1 = slug
     pk_2 = month
     items_2 = username
-
-    try:
-        survivor_1 = Survivor.objects.get(pk=pk_1)
-        survivor_2 = Survivor.objects.get(pk=pk_2)
-    except Survivor.DoesNotExist:
-        return HttpResponse(status=404)
-
-    try:
-        inventory_1 = Inventory_Items.objects.filter(survivor_id=pk_1)
-        inventory_2 = Inventory_Items.objects.filter(survivor_id=pk_2)
-    except Inventory_Items.DoesNotExist:
-        return HttpResponse(status=404)
+    dic_items1 = {}
+    dic_items2 = {}
+    soma_total1 = 0
+    soma_total2 = 0
     
-
-    bla = items_2.split("-")
-    print(Item.objects.filter(name=bla[1]))
-    
-
     if request.method == 'PUT':
-        pass
-    return HttpResponse(status=200)
+        try:
+            survivor_1 = Survivor.objects.get(pk=pk_1)
+            survivor_2 = Survivor.objects.get(pk=pk_2)
+        except Survivor.DoesNotExist:
+            return HttpResponse(status=404)
+
+        try:
+            inventory_1 = Inventory_Items.objects.filter(survivor_id=pk_1)
+            inventory_2 = Inventory_Items.objects.filter(survivor_id=pk_2)
+        except Inventory_Items.DoesNotExist:
+            return HttpResponse(status=404)
+        
+
+        types_items1 = items_1.split("-")
+        types_items2 = items_2.split("-")
+
+        for i in xrange(0, len(types_items1)):
+            if(i%2 == 0):
+                item = Item.objects.get(name=types_items1[i+1])
+                dic_items1[int(types_items1[i])*item.point] = types_items1[i+1]
+                soma_total1 += int(types_items1[i])*item.point
+
+        for i in xrange(0, len(types_items2)):
+            if(i%2 == 0):
+                dic_items2[int(types_items2[i])*item.point] = types_items2[i+1]
+                soma_total2 += int(types_items2[i])*item.point
+        
+        if (soma_total1 != soma_total2):
+            print("Points don't match")
+            return HttpResponse(status=400)
+        else:
+            pass
+    
