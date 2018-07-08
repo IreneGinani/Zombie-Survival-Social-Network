@@ -167,13 +167,13 @@ def trade_items(request, pk, slug, month, username):
             survivor_1 = Survivor.objects.get(pk=pk_1)
             survivor_2 = Survivor.objects.get(pk=pk_2)
         except Survivor.DoesNotExist:
-            return HttpResponse(json.dumps({"error":"Survivor don't exists"}), content_type="application/json", status=404)
+            return HttpResponse(json.dumps({"error":"Survivor does not exists"}), content_type="application/json", status=404)
 
         try:
             inventory_1 = Inventory_Items.objects.filter(survivor_id=pk_1)
             inventory_2 = Inventory_Items.objects.filter(survivor_id=pk_2)
         except Inventory_Items.DoesNotExist:
-            return HttpResponse(json.dumps({"error":"Inventory don't exists"}), content_type="application/json", status=404)
+            return HttpResponse(json.dumps({"error":"Inventory does not exists"}), content_type="application/json", status=404)
         
 
         types_items1 = items_1.split("-")
@@ -188,7 +188,7 @@ def trade_items(request, pk, slug, month, username):
                     if (items1.count() != int(types_items1[i])):
                         return HttpResponse(json.dumps({"error":"Amount don't match"}), content_type="application/json", status=400)
                 except Item.DoesNotExist:
-                    return HttpResponse(json.dumps({"error":"Item don't exists"}), content_type="application/json", status=404)
+                    return HttpResponse(json.dumps({"error":"Item does not exists"}), content_type="application/json", status=404)
 
                 soma_total1 += int(types_items1[i])*item.point
 
@@ -200,7 +200,7 @@ def trade_items(request, pk, slug, month, username):
                     if (items2.count() != int(types_items2[i])):
                         return HttpResponse(json.dumps({"error":"Amount don't match"}), content_type="application/json", status=400)
                 except Item.DoesNotExist:
-                    return HttpResponse(json.dumps({"error":"Item don't exists"}), content_type="application/json", status=404)
+                    return HttpResponse(json.dumps({"error":"Item does not exists"}), content_type="application/json", status=404)
                 soma_total2 += int(types_items2[i])*item.point
         
         if (soma_total1 != soma_total2):
@@ -306,3 +306,40 @@ def avg_items(request):
         avg_medication = sum_medication/survivors.count()
 
         return HttpResponse(json.dumps({"Percentage of items per survivor": {"ammunition": avg_ammunition, "medication": avg_medication, "food":avg_food, "water":avg_water }}), content_type="application/json", status=200)
+
+def points_lost(request):
+
+    points_lost = 0
+
+    if request.method == 'GET':
+        survivors = Survivor.objects.all()
+
+        for survivor in survivors:
+            if survivor.is_infected:
+                inventories = Inventory_Items.objects.filter(survivor_id=survivor.id)
+                for i in inventories:
+                    item = Item.objects.get(pk=i.items)
+                    points_lost += item.point
+       
+        return HttpResponse(json.dumps({"Total lost points": points_lost}), content_type="application/json", status=200)
+
+def points_lost_survivor(request,pk):
+
+    points_lost = 0
+
+    if request.method == 'GET':
+        try:
+            survivor = Survivor.objects.get(pk=pk)
+        except Survivor.DoesNotExist:
+            return HttpResponse(json.dumps({"error":"Survivor does not exists"}), content_type="application/json", status=404)
+
+        if survivor.is_infected:
+            inventories = Inventory_Items.objects.filter(survivor_id=survivor.id)
+            for i in inventories:
+                item = Item.objects.get(pk=i.items)
+                points_lost += item.point
+        else:
+            return HttpResponse(json.dumps({"error":"This survivor are not infected"}), content_type="application/json", status=404)
+
+       
+        return HttpResponse(json.dumps({"Total lost points from this survivor": points_lost}), content_type="application/json", status=200)

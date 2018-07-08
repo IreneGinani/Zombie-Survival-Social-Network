@@ -10,4 +10,7 @@ urlpatterns = [
     url(r'^api/v1/survivor/survivors_infected/$', views.infected_survivors_report),
     url(r'^api/v1/survivor/survivors_no_infected/$', views.no_infected_survivors_report),
     url(r'^api/v1/survivor/avg_items/$', views.avg_items),
+    url(r'^api/v1/survivor/points_lost/$', views.points_lost),
+    url(r'^api/v1/survivor/points_lost/(?P<pk>[0-9]+)/$', views.points_lost_survivor),
+
 ]
