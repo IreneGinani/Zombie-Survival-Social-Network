@@ -206,16 +206,19 @@ def trade_items(request, pk, slug, month, username):
         if (soma_total1 != soma_total2):
             return HttpResponse(json.dumps({"error":"Points don't match"}), content_type="application/json", status=400)
 
+        elif(survivor_1.is_infected) or (survivor_2.is_infected):
+            return HttpResponse(json.dumps({"error":"Survivor is infected"}), content_type="application/json", status=400)
+
         else:
             for key in dic_items1:
                 dic_inventory = { "survivor_id": pk_2, "items": dic_items1[key], "inventories": 
                                         [{'survivor': {
-                                                       'name': "",
-                                                       'age' : 0,
-                                                       'gender': "",
-                                                       'longitude': 0,
-                                                       'latitude': 0,
-                                                       'is_infected': False,
+                                                       'name': survivor_2.name,
+                                                       'age' : survivor_2.age,
+                                                       'gender': survivor_2.gender,
+                                                       'longitude': survivor_2.longitude,
+                                                       'latitude': survivor_2.latitude,
+                                                       'is_infected': survivor_2.is_infected,
                                                        'count_reports': 0
                                                     }
                                         },
@@ -229,12 +232,12 @@ def trade_items(request, pk, slug, month, username):
             for key in dic_items2:
                 dic_inventory = { "survivor_id": pk_1, "items": dic_items2[key], "inventories": 
                                         [{'survivor': {
-                                                       'name': "",
-                                                       'age' : 0,
-                                                       'gender': "",
-                                                       'longitude': 0,
-                                                       'latitude': 0,
-                                                       'is_infected': False,
+                                                       'name': survivor_1.name,
+                                                       'age' : survivor_1.age,
+                                                       'gender': survivor_1.gender,
+                                                       'longitude': survivor_1.longitude,
+                                                       'latitude': survivor_1.latitude,
+                                                       'is_infected': survivor_1.is_infected,
                                                        'count_reports': 0
                                                     }
                                         },
@@ -248,4 +251,58 @@ def trade_items(request, pk, slug, month, username):
 
     return HttpResponse(json.dumps({"Success":"Exchange made successfully"}), content_type="application/json", status=200)
 
-    
+def infected_survivors_report(request):
+    infected = 0.0
+
+    if request.method == 'GET':
+        survivor = Survivor.objects.all()
+        for s in survivor:
+            if s.is_infected:
+                infected+=1
+
+        porcent_infected = (infected/survivor.count())*100
+        return HttpResponse(json.dumps({"Percentage of infected persons": porcent_infected}), content_type="application/json", status=200)
+
+def no_infected_survivors_report(request):
+    no_infected = 0.0
+
+    if request.method == 'GET':
+        survivor = Survivor.objects.all()
+        for s in survivor:
+            if not(s.is_infected):
+                no_infected+=1
+
+        porcent_no_infected = (no_infected/survivor.count())*100
+        return HttpResponse(json.dumps({"Percentage of no infected persons": porcent_no_infected}), content_type="application/json", status=200)
+
+def avg_items(request):
+
+    sum_water = 0.0
+    sum_food = 0.0
+    sum_ammunition = 0.0
+    sum_medication = 0.0
+
+    if request.method == 'GET':
+        inventories = Inventory_Items.objects.all()
+        survivors = Survivor.objects.all()
+        for i in inventories:
+
+            survivor = Survivor.objects.get(pk=i.survivor_id)
+
+            if not(survivor.is_infected):
+
+                if i.items == 1:
+                    sum_food +=1
+                elif i.items == 2:
+                    sum_water+=1
+                elif i.items == 3:
+                    sum_medication+=1
+                elif i.items == 4:
+                    sum_ammunition+=1
+        
+        avg_food = sum_food/survivors.count()
+        avg_water = sum_water/survivors.count()
+        avg_ammunition = sum_ammunition/survivors.count()
+        avg_medication = sum_medication/survivors.count()
+
+        return HttpResponse(json.dumps({"Percentage of items per survivor": {"ammunition": avg_ammunition, "medication": avg_medication, "food":avg_food, "water":avg_water }}), content_type="application/json", status=200)
