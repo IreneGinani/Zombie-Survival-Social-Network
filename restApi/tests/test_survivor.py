@@ -5,7 +5,7 @@ from restApi.models import Survivor, Item, Inventory, Inventory_Items
 from rest_framework.test import APITestCase
 import json
 
-class TestSurvivorCreation(APITestCase):
+class TestSurvivor(APITestCase):
 
     fixtures = ['restApi/fixture/default.json']
   
