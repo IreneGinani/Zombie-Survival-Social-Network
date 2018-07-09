@@ -200,7 +200,6 @@ def trade_items(request, pk, slug, month, username):
         elif(survivor_1.is_infected) or (survivor_2.is_infected):
             return HttpResponse(json.dumps({"error":"Survivor is infected"}), content_type="application/json", status=400)
 
-        
         else:
             for key in dic_items1:
                 items1 = Item.objects.get(name=key)
@@ -220,8 +219,7 @@ def trade_items(request, pk, slug, month, username):
                 inventory_items_serializer = Inventory_ItemsSerializer(data=dic_inventory)
                 if inventory_items_serializer.is_valid():
                     inventory_items_serializer.save()
-                item = Item.objects.get(name=key)
-                Inventory_Items.objects.filter(items=item.pk).first().delete()
+                Inventory_Items.objects.filter(survivor_id=pk_1,items=items1.pk).first().delete()
                 
             for key in dic_items2:
                 items2 = Item.objects.get(name=key)
@@ -241,11 +239,10 @@ def trade_items(request, pk, slug, month, username):
                 inventory_items_serializer = Inventory_ItemsSerializer(data=dic_inventory)
                 if inventory_items_serializer.is_valid():
                     inventory_items_serializer.save()
-                item = Item.objects.get(name=key)
-                Inventory_Items.objects.filter(items=item.pk).first().delete()
+                Inventory_Items.objects.filter(survivor_id=pk_2,items=items2.pk).first().delete()
             return HttpResponse(json.dumps({"Success":"Exchange made successfully"}), content_type="application/json", status=200)
 
-    return HttpResponse(json.dumps({"Success":"Exchange made successfully"}), content_type="application/json", status=200)
+    return HttpResponse(json.dumps({"error":"Verify the method in request"}), content_type="application/json", status=200)
 
 def infected_survivors_report(request):
     infected = 0.0

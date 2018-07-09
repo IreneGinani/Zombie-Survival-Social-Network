@@ -316,5 +316,3 @@ class TestSurvivorCreation(APITestCase):
         request_sucess = self.client.put('http://localhost:8000/api/v1/survivor/trade_items/1/1-food/2/1-ammunition-1-medication/')
         self.assertEquals(request_sucess.status_code, 200)
         self.assertEquals(json.loads(request_sucess.content)['Success'], "Exchange made successfully")
-
-        request_inventories = self.client.get('http://localhost:8000/api/v1/inventories_items/')
