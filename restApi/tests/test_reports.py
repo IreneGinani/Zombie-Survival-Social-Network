@@ -1,6 +1,5 @@
 from django.test import TestCase
 from model_mommy import mommy
-from django.utils.timezone import datetime
 from restApi.models import Survivor, Item, Inventory, Inventory_Items
 from rest_framework.test import APITestCase
 import json
