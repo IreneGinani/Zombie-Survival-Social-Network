@@ -83,7 +83,7 @@ def survivor_update(request, pk):
         if serializer.is_valid():
             serializer.save()
             s_serializer = SurvivorSerializer(survivor)
-            return JsonResponse(s_serializer.data)
+            return JsonResponse(s_serializer.data, status=200)
         return JsonResponse(serializer.errors, status=400)
 
 def inventories_items(request):
