@@ -169,9 +169,12 @@ def trade_items(request, pk, slug, month, username):
                     if (items1.count() != int(types_items1[i])):
                         return HttpResponse(json.dumps({"error":"Amount don't match"}), content_type="application/json", status=400)
                 except Item.DoesNotExist:
-                    
                     return HttpResponse(json.dumps({"error":"Item does not exists"}), content_type="application/json", status=404)
-
+                try:
+                    Inventory_Items.objects.filter(items=item.pk, survivor_id=survivor.id)
+                except:
+                    return HttpResponse(json.dumps({"error":"Item in inventory does not exists"}), content_type="application/json", status=404)
+                
                 soma_total1 += int(types_items1[i])*item.point
 
         for i in xrange(0, len(types_items2)):
@@ -184,6 +187,12 @@ def trade_items(request, pk, slug, month, username):
                         return HttpResponse(json.dumps({"error":"Amount don't match"}), content_type="application/json", status=400)
                 except Item.DoesNotExist:
                     return HttpResponse(json.dumps({"error":"Item does not exists"}), content_type="application/json", status=404)
+                try:
+                    Inventory_Items.objects.filter(items=item.pk,survivor_id=survivor.id)
+                except Inventory_Items.DoesNotExist:
+                    return HttpResponse(json.dumps({"error":"Item in inventory does not exists"}), content_type="application/json", status=404)
+                
+                
                 soma_total2 += int(types_items2[i])*item.point
         
         if (soma_total1 != soma_total2):
@@ -210,7 +219,8 @@ def trade_items(request, pk, slug, month, username):
                 inventory_items_serializer = Inventory_ItemsSerializer(data=dic_inventory)
                 if inventory_items_serializer.is_valid():
                     inventory_items_serializer.save()
-                Inventory_Items.objects.filter(name=dic_items1[key]).first().delete()
+                item = Item.objects.get(name=dic_items1[key])
+                Inventory_Items.objects.filter(items=item.pk).first().delete()
                 
             for key in dic_items2:
                 dic_inventory = { "survivor_id": pk_1, "items": dic_items2[key], "inventories": 
@@ -229,7 +239,8 @@ def trade_items(request, pk, slug, month, username):
                 inventory_items_serializer = Inventory_ItemsSerializer(data=dic_inventory)
                 if inventory_items_serializer.is_valid():
                     inventory_items_serializer.save()
-                Inventory_Items.objects.filter(name=dic_items2[key]).first().delete()
+                item = Item.objects.get(name=dic_items2[key])
+                Inventory_Items.objects.filter(items=item.pk).first().delete()
             return HttpResponse(json.dumps({"Success":"Exchange made successfully"}), content_type="application/json", status=200)
 
     return HttpResponse(json.dumps({"Success":"Exchange made successfully"}), content_type="application/json", status=200)
