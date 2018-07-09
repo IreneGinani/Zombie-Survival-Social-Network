@@ -159,24 +159,27 @@ def trade_items(request, pk, slug, month, username):
         types_items1 = items_1.split("-")
         types_items2 = items_2.split("-")
 
+
         for i in xrange(0, len(types_items1)):
             if(i%2 == 0):
-                item = Item.objects.get(name=types_items1[i+1])
-                dic_items1[int(types_items1[i])] = types_items1[i+1]
                 try:
+                    item = Item.objects.get(name=types_items1[i+1])
+                    dic_items1[int(types_items1[i])] = types_items1[i+1]
                     items1 = Item.objects.filter(name=types_items1[i+1])
                     if (items1.count() != int(types_items1[i])):
                         return HttpResponse(json.dumps({"error":"Amount don't match"}), content_type="application/json", status=400)
                 except Item.DoesNotExist:
+                    
                     return HttpResponse(json.dumps({"error":"Item does not exists"}), content_type="application/json", status=404)
 
                 soma_total1 += int(types_items1[i])*item.point
 
         for i in xrange(0, len(types_items2)):
             if(i%2 == 0):
-                dic_items2[int(types_items2[i])] = types_items2[i+1]
                 try:
+                    item = Item.objects.get(name=types_items2[i+1])
                     items2 = Item.objects.filter(name=types_items2[i+1])
+                    dic_items2[int(types_items2[i])] = types_items2[i+1]
                     if (items2.count() != int(types_items2[i])):
                         return HttpResponse(json.dumps({"error":"Amount don't match"}), content_type="application/json", status=400)
                 except Item.DoesNotExist:

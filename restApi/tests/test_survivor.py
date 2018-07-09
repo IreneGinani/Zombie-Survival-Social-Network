@@ -6,6 +6,8 @@ from rest_framework.test import APITestCase
 import json
 
 class TestSurvivorCreation(APITestCase):
+
+    fixtures = ['restApi/fixture/default.json']
   
     def test_survivor_creation(self):
         request = self.client.post('http://localhost:8000/api/v1/survivor/', {
@@ -81,4 +83,159 @@ class TestSurvivorCreation(APITestCase):
         request_3 = self.client.put('http://localhost:8000/api/v1/survivor/report_infection/1/')
 
         self.assertEquals(json.loads(request_3.content)['is_infected'], True)
+        
+    def test_survivor_trade_notfound_survivor(self):
+
+        resques_notfound = self.client.put('http://localhost:8000/api/v1/survivor/trade_items/1/1-food/2/3-food/')
+        self.assertEquals(resques_notfound.status_code, 404)
+
+    def test_survivor_trade_amountdontmatch(self):
+        survivor = self.client.post('http://localhost:8000/api/v1/survivor/', {
+                                                    "name": "Mario Fernandes",
+                                                    "age": 30,
+                                                    "gender": "M",
+                                                    "latitude": -16.346867430274,
+                                                    "longitude": -48.948227763174,
+                                                    "is_infected": False,
+                                                    "count_reports":0,
+                                                    "inventory": {
+  		                                                            "inventory_items": [
+	  	                                                            {"id": 1 },
+		                                                            {"id": 3 }
+		                                                            ]
+                                                                }
+                                                    }, format='json')
+        survivor1 = self.client.post('http://localhost:8000/api/v1/survivor/', {
+                                                    "name": "Maria Aparecida",
+                                                    "age": 30,
+                                                    "gender": "F",
+                                                    "latitude": 10.0909,
+                                                    "longitude": 8.45,
+                                                    "is_infected": False,
+                                                    "count_reports":0,
+                                                    "inventory": {
+  		                                                            "inventory_items": [
+	  	                                                            {"id": 1 },
+		                                                            {"id": 2 }
+		                                                            ]
+                                                                }
+                                                    }, format='json')
+
+        request_amounterror = self.client.put('http://localhost:8000/api/v1/survivor/trade_items/1/4-food/2/3-food/')
+        self.assertEquals(request_amounterror.status_code, 400)
+        self.assertEquals(json.loads(request_amounterror.content)['error'], "Amount don't match")
+
+    def test_survivor_trade_itemnotfound(self):
+
+        survivor = self.client.post('http://localhost:8000/api/v1/survivor/', {
+                                                    "name": "Mario Fernandes",
+                                                    "age": 30,
+                                                    "gender": "M",
+                                                    "latitude": -16.346867430274,
+                                                    "longitude": -48.948227763174,
+                                                    "is_infected": False,
+                                                    "count_reports":0,
+                                                    "inventory": {
+  		                                                            "inventory_items": [
+	  	                                                            {"id": 1 },
+		                                                            {"id": 3 }
+		                                                            ]
+                                                                }
+                                                    }, format='json')
+        survivor1 = self.client.post('http://localhost:8000/api/v1/survivor/', {
+                                                    "name": "Maria Aparecida",
+                                                    "age": 30,
+                                                    "gender": "F",
+                                                    "latitude": 10.0909,
+                                                    "longitude": 8.45,
+                                                    "is_infected": False,
+                                                    "count_reports":0,
+                                                    "inventory": {
+  		                                                            "inventory_items": [
+	  	                                                            {"id": 1 },
+		                                                            {"id": 2 }
+		                                                            ]
+                                                                }
+                                                    }, format='json')
+
+        request_itemerror = self.client.put('http://localhost:8000/api/v1/survivor/trade_items/1/1-food/2/1-juice/')
+       
+        self.assertEquals(request_itemerror.status_code, 404)
+        self.assertEquals(json.loads(request_itemerror.content)['error'], "Item does not exists")
+
+    def test_survivor_trade_pointsdontmatch(self):
+        survivor = self.client.post('http://localhost:8000/api/v1/survivor/', {
+                                                    "name": "Mario Fernandes",
+                                                    "age": 30,
+                                                    "gender": "M",
+                                                    "latitude": -16.346867430274,
+                                                    "longitude": -48.948227763174,
+                                                    "is_infected": False,
+                                                    "count_reports":0,
+                                                    "inventory": {
+  		                                                            "inventory_items": [
+	  	                                                            {"id": 1 },
+		                                                            {"id": 3 }
+		                                                            ]
+                                                                }
+                                                    }, format='json')
+        survivor1 = self.client.post('http://localhost:8000/api/v1/survivor/', {
+                                                    "name": "Maria Aparecida",
+                                                    "age": 30,
+                                                    "gender": "F",
+                                                    "latitude": 10.0909,
+                                                    "longitude": 8.45,
+                                                    "is_infected": False,
+                                                    "count_reports":0,
+                                                    "inventory": {
+  		                                                            "inventory_items": [
+	  	                                                            {"id": 1 },
+		                                                            {"id": 2 }
+		                                                            ]
+                                                                }
+                                                    }, format='json')
+
+        request_pointserror = self.client.put('http://localhost:8000/api/v1/survivor/trade_items/1/1-food/2/1-water/')
+       
+        self.assertEquals(request_pointserror.status_code, 400)
+        self.assertEquals(json.loads(request_pointserror.content)['error'], "Points don't match")
+        
+    def test_survivor_trade_survivorinfected(self):
+
+        survivor = self.client.post('http://localhost:8000/api/v1/survivor/', {
+                                                    "name": "Mario Fernandes",
+                                                    "age": 30,
+                                                    "gender": "M",
+                                                    "latitude": -16.346867430274,
+                                                    "longitude": -48.948227763174,
+                                                    "is_infected": False,
+                                                    "count_reports":0,
+                                                    "inventory": {
+  		                                                            "inventory_items": [
+	  	                                                            {"id": 1 },
+		                                                            {"id": 3 }
+		                                                            ]
+                                                                }
+                                                    }, format='json')
+
+        survivor2 = self.client.post('http://localhost:8000/api/v1/survivor/', {
+                                                    "name": "Maria Aparecida",
+                                                    "age": 30,
+                                                    "gender": "F",
+                                                    "latitude": 10.0909,
+                                                    "longitude": 8.45,
+                                                    "is_infected": True,
+                                                    "count_reports":0,
+                                                    "inventory": {
+  		                                                            "inventory_items": [
+	  	                                                            {"id": 1 },
+		                                                            {"id": 2 }
+		                                                            ]
+                                                                }
+                                                    }, format='json')
+
+        request_infectionserror = self.client.put('http://localhost:8000/api/v1/survivor/trade_items/1/1-food/2/1-food/')
+       
+        self.assertEquals(request_infectionserror.status_code, 400)
+        self.assertEquals(json.loads(request_infectionserror.content)['error'], "Survivor is infected")
         
