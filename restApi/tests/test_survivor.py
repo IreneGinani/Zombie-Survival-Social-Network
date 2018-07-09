@@ -239,7 +239,7 @@ class TestSurvivorCreation(APITestCase):
         self.assertEquals(request_infectionserror.status_code, 400)
         self.assertEquals(json.loads(request_infectionserror.content)['error'], "Survivor is infected")
         
-    def test_trade_sucess(self):
+    def test_trade_inventorynotfound(self):
 
 
         survivor = self.client.post('http://localhost:8000/api/v1/survivor/', {
@@ -268,16 +268,53 @@ class TestSurvivorCreation(APITestCase):
                                                     "inventory": {
   		                                                            "inventory_items": [
 	  	                                                            {"id": 1 },
-		                                                            {"id": 2 }
+		                                                            {"id": 3 }
 		                                                            ]
                                                                 }
                                                     }, format='json')
 
-        request_sucess = self.client.put('http://localhost:8000/api/v1/survivor/trade_items/1/1-food/2/1-ammunition-1-medication/')
+        request_itemnotfound = self.client.put('http://localhost:8000/api/v1/survivor/trade_items/1/1-food/2/1-ammunition-1-medication/')
        
-        self.assertEquals(request_sucess.status_code, 404)
-        self.assertEquals(json.loads(request_sucess.content)['error'], "Item in inventory does not exists")
+        self.assertEquals(request_itemnotfound.status_code, 404)
+        self.assertEquals(json.loads(request_itemnotfound.content)['error'], "Item in inventory does not exists")
+
+   
+       
+    def test_trade_success(self):
+
+
+        survivor = self.client.post('http://localhost:8000/api/v1/survivor/', {
+                                                    "name": "Mario Fernandes",
+                                                    "age": 30,
+                                                    "gender": "M",
+                                                    "latitude": -16.346867430274,
+                                                    "longitude": -48.948227763174,
+                                                    "is_infected": False,
+                                                    "count_reports":0,
+                                                    "inventory": {
+  		                                                            "inventory_items": [
+	  	                                                            {"id": 1 },
+		                                                            {"id": 3 }
+		                                                            ]
+                                                                }
+                                                    }, format='json')
+        survivor1 = self.client.post('http://localhost:8000/api/v1/survivor/', {
+                                                    "name": "Maria Aparecida",
+                                                    "age": 30,
+                                                    "gender": "F",
+                                                    "latitude": 10.0909,
+                                                    "longitude": 8.45,
+                                                    "is_infected": False,
+                                                    "count_reports":0,
+                                                    "inventory": {
+  		                                                            "inventory_items": [
+	  	                                                            {"id": 4 },
+		                                                            {"id": 3 }
+		                                                            ]
+                                                                }
+                                                    }, format='json')
+        request_sucess = self.client.put('http://localhost:8000/api/v1/survivor/trade_items/1/1-food/2/1-ammunition-1-medication/')
+        self.assertEquals(request_sucess.status_code, 200)
+        self.assertEquals(json.loads(request_sucess.content)['Success'], "Exchange made successfully")
 
         request_inventories = self.client.get('http://localhost:8000/api/v1/inventories_items/')
-       
-        
