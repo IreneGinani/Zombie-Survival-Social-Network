@@ -45,8 +45,8 @@ api/v1/survivor/
   "gender": "Feminino",
   "latitude": -16.346867430274,
   "longitude": -48.948227763174,
-  "infected": false,
-  "infection_occurrences": 0,
+  "is_infected": false,
+  "count_reports": 0,
   "inventory": {
   		"inventory_resources_attributes": [
 	  	    {"id": 1 },
